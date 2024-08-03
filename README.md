@@ -6,16 +6,17 @@ Welcome to the Blog Application REST API project! This application is a simple b
 
 - **CRUD Operations**: Create, Read, Update, and Delete blog posts.
 - **User Management**: Register and authenticate users.
-- **Tag Management**: Add and manage tags for blog posts.
-- **Search**: Search blog posts by title and tags.
+- **Category Management**: Add and manage category for blog posts.
+- **Search**: Search blog posts by title and category.
 
 ## Technologies Used
 
 - **Spring Boot**: For building the RESTful API.
 - **Spring Data JPA**: For database interactions.
-- **H2 Database**: In-memory database for development and testing.
+- **mysql Database**:  database for development and testing.
 - **Spring Security**: For authentication and authorization.
 - **Maven**: For project build and dependency management.
+- **swagger** : you can visualize Api using it
 - **JUnit**: For testing.
 
 ## Getting Started
@@ -38,6 +39,9 @@ mvn clean install
 ### Run the Application
 ```bash
 mvn spring-boot:run
+
+### Swagger Endpoint
+http://localhost:8080/swagger-ui/index.html
 
 ### Run on docker to test Api's
 
