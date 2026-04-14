@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Frontend ###
+node_modules/
+dist/
+ui/node_modules/
+ui/dist/
+ui/.vite/
+.env
+
