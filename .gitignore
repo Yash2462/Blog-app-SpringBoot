@@ -32,11 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
-### Frontend ###
+### UI & Environment ###
 node_modules/
 dist/
 ui/node_modules/
 ui/dist/
 ui/.vite/
 .env
-
+*.log
