@@ -123,7 +123,8 @@ const CreatePost = () => {
       setFormData(prev => ({ ...prev, data: prev.data + `\n\n![Uploaded Image](${imageUrl} "width=100%")\n` }));
       setIsDirty(true);
       setSnackbar({ open: true, message: 'Image added to post content!', severity: 'success' });
-    } catch (err) {
+    } catch (error) {
+      console.error('Editor image upload failed', error);
       setSnackbar({ open: true, message: 'Image upload to editor failed', severity: 'error' });
     }
   };
@@ -471,7 +472,7 @@ const CreatePost = () => {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Settings Card */}
-            <div className="bg-card rounded-2xl border border-border shadow-sm p-6 line-clamp-2">
+            <div className="bg-card rounded-2xl border border-border shadow-sm p-6">
               <h3 className="flex items-center text-lg font-semibold mb-6 pb-4 border-b border-border text-foreground">
                 <Settings className="w-5 h-5 mr-2 text-foreground" /> 
                 Post Settings

@@ -1,218 +1,137 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, Sun, Moon, Home as HomeIcon, PlusSquare, User, LogOut, Search, ChevronDown, Settings } from 'lucide-react';
+import { Menu, X, Sun, Moon, Search, ChevronDown, User, LogOut, Settings, PlusSquare } from 'lucide-react';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { user, logout } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [theme, setTheme] = useState(
-    typeof window !== 'undefined' ? document.documentElement.className.includes('dark') ? 'dark' : 'light' : 'light'
-  );
-
-  // Debounced search logic
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchQuery.trim() && location.pathname === '/posts') {
-        const params = new URLSearchParams(window.location.search);
-        params.set('query', searchQuery);
-        navigate(`/posts?${params.toString()}`, { replace: true });
-      } else if (!searchQuery.trim() && location.pathname === '/posts') {
-        const params = new URLSearchParams(window.location.search);
-        params.delete('query');
-        navigate(`/posts?${params.toString()}`, { replace: true });
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchQuery, location.pathname, navigate]);
-
-  // Sync search input with URL on page load/navigation
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const query = params.get('query');
-    if (query) setSearchQuery(query);
-  }, [location.search]);
-
-  const toggleTheme = () => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('color-theme', 'dark');
-      setTheme('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('color-theme', 'light');
-      setTheme('light');
-    }
-  };
+  
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Check theme on mount
-    const isDark = document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'dark' : 'light');
-
-    // Close menus on click outside
-    const handleClickOutside = (e) => {
-      if (isProfileOpen && !e.target.closest('.profile-dropdown')) {
-        setIsProfileOpen(false);
-      }
-    };
-    window.addEventListener('click', handleClickOutside);
-    return () => window.removeEventListener('click', handleClickOutside);
-  }, [isProfileOpen]);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
-    setIsMobileMenuOpen(false);
+    navigate('/');
     setIsProfileOpen(false);
   };
 
-  const closeMenu = () => setIsMobileMenuOpen(false);
+  const isAdmin = user && user.roles && user.roles.some(r => r.name === 'ADMIN');
 
-  const authLinks = [
-    { to: '/posts', label: 'Home', icon: <HomeIcon className="w-4 h-4 mr-2" /> },
-    ...(user && user.isAdmin ? [{ to: '/create-post', label: 'Write', icon: <PlusSquare className="w-4 h-4 mr-2" /> }] : []),
+  const navLinks = [
+    { to: '/posts', label: 'Articles' },
+    { to: '/posts?category=Interview+Experience', label: 'Interview Experiences' },
+    { to: '/posts?type=INTERVIEW_QUESTION', label: 'Questions' },
+    { to: '/dsa-sheets', label: 'DSA Sheets' },
+    { to: '/crash-course', label: 'Crash Course' },
+    { to: '/posts?category=System+Design', label: 'System Design' },
+    { to: '/posts?category=Contest+Solution', label: 'Contest Solutions' },
+    { to: '/contact', label: 'Contact Us' },
   ];
-
-  const publicLinks = [
-    { to: '/', label: 'Home', icon: <HomeIcon className="w-4 h-4 mr-2" /> },
-  ];
-
-  const linksToUse = user ? authLinks : publicLinks;
 
   return (
-    <header className="fixed top-0 w-full z-50 transition-all duration-300 glass-effect">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
+      isScrolled ? 'glass-effect py-2 shadow-sm' : 'bg-transparent py-4'
+    }`}>
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/posts')}>
-            <span className="text-xl font-mono font-bold text-foreground flex items-center">
-              <span className="text-primary mr-1">&lt;</span>
-              BlogSpace
-              <span className="text-primary ml-1">/&gt;</span>
+          <Link to="/" className="flex items-center gap-1 group whitespace-nowrap mr-8">
+            <span className="text-2xl font-mono font-bold tracking-tighter text-foreground group-hover:text-primary transition-colors">
+              &lt;<span className="text-primary">code</span>WithYash&gt;
             </span>
-          </div>
+          </Link>
 
-          {/* Search Bar - Desktop */}
-          {user && location.pathname === '/posts' && (
-            <div className="hidden md:flex flex-1 max-w-md mx-6">
-              <div className="relative w-full group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-1.5 border border-border rounded-lg bg-muted/50 text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-mono"
-                  placeholder="Search posts..."
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-2 items-center">
-            {linksToUse.map((link) => (
+          {/* Desktop Links - Scrollable on small desktops if many items */}
+          <div className="hidden xl:flex items-center gap-1 overflow-x-auto no-scrollbar">
+            {navLinks.map((link) => (
               <NavLink
-                key={link.to}
+                key={link.label}
                 to={link.to}
                 className={({ isActive }) =>
-                  `flex items-center text-sm font-medium transition-all hover:text-primary px-3 py-1.5 rounded-md ${
-                    isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:bg-muted'
+                  `px-3 py-2 text-[11px] font-black uppercase tracking-widest transition-colors hover:text-primary whitespace-nowrap ${
+                    isActive ? 'text-primary' : 'text-slate-500 dark:text-slate-400'
                   }`
                 }
               >
-                {link.icon}
                 {link.label}
               </NavLink>
             ))}
+          </div>
+
+          {/* Right Section: Theme & Auth */}
+          <div className="flex items-center gap-4 ml-auto">
+            {/* Theme Toggle placeholder if needed later */}
             
-            <div className="w-px h-6 bg-border mx-2" />
-
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors outline-none"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
             {user ? (
-              <div className="relative profile-dropdown">
-                <button
-                  onClick={(e) => { e.stopPropagation(); setIsProfileOpen(!isProfileOpen); }}
-                  className="flex items-center gap-2 p-1.5 rounded-full hover:bg-muted transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20">
-                    {user.profileImage ? (
-                      <img src={user.profileImage} alt="profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-5 h-5" />
-                    )}
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-card border border-border rounded-xl shadow-xl py-2 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="px-4 py-2 border-b border-border mb-1">
-                      <p className="text-sm font-bold text-foreground truncate">{user.username || 'User'}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                    <button
-                      onClick={() => { navigate('/profile'); setIsProfileOpen(false); }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      View Profile
-                    </button>
-                    <button
-                      onClick={() => { navigate('/dashboard'); setIsProfileOpen(false); }}
-                      className="flex w-full items-center px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </button>
-                    <div className="h-px bg-border my-1" />
-                    <button
-                      onClick={handleLogout}
-                      className="flex w-full items-center px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </button>
-                  </div>
+              <div className="flex items-center gap-4">
+                {isAdmin && (
+                  <Link 
+                    to="/create-post" 
+                    className="p-2.5 bg-primary/10 text-primary rounded-2xl hover:bg-primary hover:text-white transition-all shadow-sm"
+                    title="Create Entry"
+                  >
+                    <PlusSquare className="w-5 h-5" />
+                  </Link>
                 )}
+                
+                <div className="relative">
+                  <button
+                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                    className="flex items-center gap-2 p-1.5 rounded-full border border-border bg-white dark:bg-card hover:border-primary/50 transition-all shadow-sm"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-black text-xs">
+                      {user.username?.[0].toUpperCase() || 'Y'}
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {isProfileOpen && (
+                    <div className="absolute right-0 mt-4 w-60 bg-white dark:bg-card border border-border rounded-[2rem] shadow-2xl py-4 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="px-6 py-4 border-b border-border mb-2">
+                        <p className="text-sm font-black text-foreground truncate">{user.username}</p>
+                        <p className="text-[10px] font-bold text-slate-400 truncate uppercase tracking-widest">{user.email}</p>
+                      </div>
+                      <Link to="/profile" className="flex items-center gap-3 px-6 py-3 text-sm font-bold text-slate-500 hover:bg-secondary hover:text-primary transition-colors">
+                        <User className="w-4 h-4" /> ID_CARD
+                      </Link>
+                      <Link to="/dashboard" className="flex items-center gap-3 px-6 py-3 text-sm font-bold text-slate-500 hover:bg-secondary hover:text-primary transition-colors">
+                        <Settings className="w-4 h-4" /> TERMINAL
+                      </Link>
+                      <div className="h-px bg-border my-2 mx-6" />
+                      <button 
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-3 px-6 py-3 text-sm font-black text-rose-500 hover:bg-rose-50 transition-colors uppercase tracking-widest"
+                      >
+                        <LogOut className="w-4 h-4" /> Disconnect
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
-              location.pathname !== '/login' && location.pathname !== '/signup' && (
-                <button
-                  onClick={() => navigate('/login')}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
+              <div className="flex items-center gap-4">
+                <Link to="/login" className="hidden sm:block text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors">
                   Sign In
-                </button>
-              )
+                </Link>
+                <Link to="/signup" className="px-8 py-3 bg-primary text-white text-xs font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">
+                  Join Now
+                </Link>
+              </div>
             )}
-          </nav>
 
-          {/* Mobile menu button */}
-          <div className="flex md:hidden items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-muted-foreground hover:bg-muted transition-colors"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-muted-foreground hover:text-foreground p-2 focus:outline-none"
+              className="xl:hidden p-2 text-slate-500 hover:text-primary transition-colors"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -220,86 +139,35 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation Dropdown */}
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-
-            {/* Mobile Search — only on /posts */}
-            {user && location.pathname === '/posts' && (
-              <div className="relative mb-2">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-border rounded-lg bg-muted/50 text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-mono"
-                  placeholder="Search posts..."
-                />
-              </div>
-            )}
-
-            {linksToUse.map((link) => (
+        <div className="xl:hidden bg-white dark:bg-card border-t border-border py-6 animate-in slide-in-from-top-4 duration-300">
+          <div className="px-6 space-y-2">
+            {navLinks.map((link) => (
               <NavLink
-                key={link.to}
+                key={link.label}
                 to={link.to}
-                onClick={closeMenu}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `flex items-center px-3 py-2 rounded-md text-base font-medium ${
-                    isActive
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  `block px-6 py-4 text-xs font-black uppercase tracking-widest rounded-2xl transition-all ${
+                    isActive ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'text-slate-500 hover:bg-secondary hover:text-foreground'
                   }`
                 }
               >
-                {link.icon}
                 {link.label}
               </NavLink>
             ))}
-            {user ? (
-              <>
-                <button
-                  onClick={() => { navigate('/profile'); closeMenu(); }}
-                  className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  View Profile
-                </button>
-                <button
-                  onClick={() => { navigate('/dashboard'); closeMenu(); }}
-                  className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Dashboard
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full items-center px-3 py-2 rounded-md text-base font-medium text-destructive hover:bg-destructive/10"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </button>
-              </>
-            ) : (
-              location.pathname !== '/login' && location.pathname !== '/signup' && (
-                <button
-                  onClick={() => {
-                    navigate('/login');
-                    closeMenu();
-                  }}
-                  className="flex w-full mt-4 items-center justify-center bg-primary text-primary-foreground px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Sign In
-                </button>
-              )
+            {!user && (
+              <div className="pt-6 grid grid-cols-2 gap-4">
+                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-4 text-xs font-black text-center border border-border rounded-2xl uppercase tracking-widest">Login</Link>
+                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-4 text-xs font-black text-center bg-primary text-white rounded-2xl shadow-lg uppercase tracking-widest">Join</Link>
+              </div>
             )}
           </div>
         </div>
       )}
-    </header>
+    </nav>
   );
 };
 
-export default Navbar; 
+export default Navbar;

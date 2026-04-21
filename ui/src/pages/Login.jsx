@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../contexts/AuthContext';
-// eslint-disable-next-line no-unused-vars
 import { motion } from 'framer-motion';
-import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff, Lock } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,127 +17,95 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
     setLoading(true);
+    setError('');
     try {
       const res = await api.post('/api/auth/login', { email, password });
-      if (res.status === 200 && res.data.token) {
-        login(res.data.token);
-        setSuccess('Login successful! Redirecting...');
+      if (res.data?.token) {
+        await login(res.data.token);
+        setSuccess('Authentication successful! Redirecting...');
         setTimeout(() => navigate('/posts'), 1000);
-      } else {
-        setError('Unexpected response.');
       }
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Invalid credentials');
-      }
-    } finally {
-      setLoading(false);
-    }
+      setError(err.response?.data?.message || 'Invalid credentials.');
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/30 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 pt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="max-w-md w-full space-y-8 bg-card p-8 rounded-2xl border border-border shadow-sm"
+        className="max-w-md w-full bg-card p-10 rounded-3xl border border-border shadow-xl space-y-8"
       >
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
-            Welcome back
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Enter your credentials to access your account
-          </p>
+        <div className="text-center space-y-2">
+          <div className="flex justify-center mb-6">
+            <div className="bg-primary p-3 rounded-2xl shadow-lg shadow-primary/20">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h2 className="text-3xl font-black text-foreground tracking-tight uppercase">Welcome Back</h2>
+          <p className="text-muted-foreground font-medium">Continue your learning journey.</p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 p-3 text-sm text-destructive bg-destructive/10 rounded-lg">
-            <AlertCircle className="w-4 h-4" />
+          <div className="flex items-center gap-3 p-4 bg-destructive/10 text-destructive rounded-2xl border border-destructive/20 text-sm font-bold">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
         
         {success && (
-          <div className="flex items-center gap-2 p-3 text-sm text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-500/10 rounded-lg">
-            <CheckCircle2 className="w-4 h-4" />
+          <div className="flex items-center gap-3 p-4 bg-emerald-500/10 text-emerald-600 rounded-2xl border border-emerald-500/20 text-sm font-bold">
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
             <span>{success}</span>
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="space-y-5" onSubmit={handleLogin}>
           <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-foreground mb-1">
-                Email
-              </label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Email</label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors sm:text-sm"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="email" required
+                className="w-full px-5 py-3 rounded-2xl bg-secondary/50 border border-border focus:border-primary outline-none transition-all font-medium"
+                placeholder="your@email.com"
+                value={email} onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-foreground mb-1">
-                Password
-              </label>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center px-1">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Password</label>
+                <Link to="#" className="text-[10px] font-bold text-primary hover:underline">Forgot?</Link>
+              </div>
               <div className="relative">
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none relative block w-full px-3 py-2 pr-10 border border-input bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors sm:text-sm"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? 'text' : 'password'} required
+                  className="w-full px-5 py-3 rounded-2xl bg-secondary/50 border border-border focus:border-primary outline-none transition-all font-medium"
+                  placeholder="••••••••"
+                  value={password} onChange={(e) => setPassword(e.target.value)}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground transition-colors"
-                  tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
           </div>
 
           <button
-            type="submit"
-            disabled={loading}
-            className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit" disabled={loading}
+            className="w-full py-4 bg-primary text-white font-black rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign in'}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Sign In'}
           </button>
         </form>
 
-        <div className="text-center mt-6">
-          <p className="text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary/80 transition-colors">
-              Sign up
-            </Link>
-          </p>
-        </div>
+        <p className="text-center text-sm font-bold text-muted-foreground pt-4">
+          New here? <Link to="/signup" className="text-primary hover:underline">Create Account</Link>
+        </p>
       </motion.div>
     </div>
   );
 };
 
-export default Login; 
+export default Login;

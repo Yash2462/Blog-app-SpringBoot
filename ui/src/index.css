@@ -1,118 +1,43 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   
+  --color-primary: #2563eb; /* Pro Blue 600 */
+  --color-primary-dark: #1d4ed8;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  
   --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --color-secondary: var(--secondary);
+  
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
 }
 
 @layer base {
   :root {
     --background: #ffffff;
-    --foreground: #0f172a;
-    
+    --foreground: #0f172a; /* Slate 900 */
     --card: #ffffff;
-    --card-foreground: #0f172a;
-    
-    --popover: #ffffff;
-    --popover-foreground: #0f172a;
-    
-    --primary: #0ea5e9; /* sky-500 */
-    --primary-foreground: #f8fafc;
-    
-    --secondary: #f1f5f9;
-    --secondary-foreground: #0f172a;
-    
-    --muted: #f1f5f9;
-    --muted-foreground: #64748b;
-    
-    --accent: #f1f5f9;
-    --accent-foreground: #0f172a;
-    
-    --destructive: #ef4444;
-    --destructive-foreground: #f8fafc;
-
     --border: #e2e8f0;
-    --input: #e2e8f0;
-    --ring: #000000;
-    
-    --radius: 0.25rem;
+    --secondary: #f8fafc;
+    --primary: #2563eb;
   }
   
   .dark {
-    --background: #09090b; /* zinc-950 */
-    --foreground: #fafafa;
-    
-    --card: #09090b;
-    --card-foreground: #fafafa;
-    
-    --popover: #09090b;
-    --popover-foreground: #fafafa;
-    
-    --primary: #fafafa;
-    --primary-foreground: #09090b;
-    
-    --secondary: #27272a; /* zinc-800 */
-    --secondary-foreground: #fafafa;
-    
-    --muted: #18181b; /* zinc-900 */
-    --muted-foreground: #a1a1aa;
-    
-    --accent: #18181b;
-    --accent-foreground: #fafafa;
-    
-    --destructive: #7f1d1d;
-    --destructive-foreground: #fafafa;
-
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #fafafa;
+    --background: #0f172a; /* Slate 900 */
+    --foreground: #f8fafc;
+    --card: #1e293b; /* Slate 800 */
+    --border: #334155;
+    --secondary: #0f172a;
+    --primary: #3b82f6; /* Blue 500 */
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  .dark body {
-    background-image: radial-gradient(#27272a 1px, transparent 0);
-    background-size: 24px 24px;
-    background-attachment: fixed;
+    @apply bg-background text-foreground transition-colors duration-300;
   }
 }
 
@@ -121,27 +46,19 @@
     @apply bg-background/80 backdrop-blur-md border-b border-border;
   }
   
-  .aryan-block {
-    @apply bg-neutral-100 dark:bg-neutral-800/60 p-4 rounded-xl mb-6 font-mono text-[14px] leading-relaxed border border-border/40 transition-colors hover:border-primary/20 text-foreground;
+  .clean-card {
+    @apply bg-card border border-border rounded-3xl transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 hover:border-primary/20;
   }
 
-  .post-heading {
-    @apply border-l-4 border-primary/20 bg-card/10 p-4 rounded-md text-primary font-bold;
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-400 font-black;
   }
 
-  .post-title {
-    @apply text-primary font-bold text-4xl sm:text-5xl tracking-tight leading-tight mb-8;
+  .btn-primary {
+    @apply px-10 py-3.5 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary-dark hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-xs;
   }
-  
-  .aryan-text {
-    @apply font-mono text-[14px] leading-relaxed;
-  }
-  
-  .glass-card {
-  @apply bg-card/80 backdrop-blur-md border border-border shadow-lg rounded-xl transition-all duration-300 hover:shadow-xl hover:border-foreground;
-}
 
-  .aryan-syntax {
-    @apply text-primary/60 mr-2 select-none;
+  .prose-content {
+    @apply prose prose-slate dark:prose-invert max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:uppercase prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-p:leading-relaxed prose-a:text-primary prose-code:text-primary;
   }
 }
