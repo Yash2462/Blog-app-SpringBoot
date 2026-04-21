@@ -30,6 +30,9 @@ public class Post {
 	@NotBlank(message= "post title must not be blank")
 	private String title;
 
+	@Column(name = "post_slug", unique = true)
+	private String slug;
+
 	@Column(name = "post_description", columnDefinition = "TEXT")
 	@NotBlank(message = "post description must not be blank")
 	private String description;
@@ -42,6 +45,19 @@ public class Post {
 	@Column(name = "post_data", columnDefinition = "LONGTEXT")
 	@NotBlank(message = "post data must not be blank")
 	private String data;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "post_type")
+	private PostType type = PostType.BLOG;
+
+	@Column(name = "difficulty")
+	private String difficulty; // EASY, MEDIUM, HARD
+
+	@Column(name = "solution_code", columnDefinition = "LONGTEXT")
+	private String solutionCode;
+
+	@Column(name = "tech_stack")
+	private String techStack;
     
 //	here we define many to one relation instead of one to many from users side because it is recommended
 	@ManyToOne(fetch = FetchType.EAGER)

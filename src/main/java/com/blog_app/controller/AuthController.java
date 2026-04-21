@@ -52,6 +52,9 @@ public class AuthController {
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
+    @Autowired
+    private com.blog_app.repository.RoleRepository roleRepository;
+
     // signup api
     @PostMapping("/signup")
     public ResponseEntity<Object> createUserHandler(@Valid @RequestBody User user) throws Exception {
@@ -63,11 +66,20 @@ public class AuthController {
             loginResponse.setMessage("email already exist");
             loginResponse.setStatus(400);
             return new ResponseEntity<>(loginResponse, HttpStatus.BAD_REQUEST);
-//            throw new Exception("email already exist with another Account");
         }
         User createUser = new User();
-        Role role = new Role();
-        role.setName("USER");
+        
+        // If it's the first user, make them ADMIN, otherwise USER
+        long userCount = userService.findAllUsers().size();
+        String roleName = (userCount == 0) ? "ADMIN" : "USER";
+        
+        Role role = roleRepository.findByName(roleName);
+        if (role == null) {
+            role = new Role();
+            role.setName(roleName);
+            role = roleRepository.save(role);
+        }
+        
     	createUser.setEmail(user.getEmail());
 		createUser.setUsername(user.getUsername());
 		createUser.setPassword(passwordEncoder.encode(user.getPassword()));

@@ -65,14 +65,19 @@ public class PostServiceImpl  implements PostService{
 		Post savedpost = findPost(id);
 		
 		try {
-			savedpost.setTitle(post.getTitle());
-			savedpost.setData(post.getData());
-			savedpost.setPostImage(post.getPostImage());
+			if (post.getTitle() != null) savedpost.setTitle(post.getTitle());
+			if (post.getData() != null) savedpost.setData(post.getData());
+			if (post.getPostImage() != null) savedpost.setPostImage(post.getPostImage());
+			if (post.getType() != null) savedpost.setType(post.getType());
+			if (post.getDifficulty() != null) savedpost.setDifficulty(post.getDifficulty());
+			if (post.getSolutionCode() != null) savedpost.setSolutionCode(post.getSolutionCode());
+			if (post.getTechStack() != null) savedpost.setTechStack(post.getTechStack());
+			
 			postRepository.save(savedpost);
 			
 			logger.info("post updated successfully");
 		}catch (Exception e) {
-			logger.info("error in saving post {}:",e.getMessage());
+			logger.info("error in updating post {}:",e.getMessage());
 		}
 		return savedpost;
 	}
@@ -107,6 +112,11 @@ public class PostServiceImpl  implements PostService{
 	@Override
 	public List<Post> findPosts(String query) {
 		return postRepository.findByTitleContainingIgnoreCaseOrDataContainingIgnoreCase(query, query);
+	}
+
+	@Override
+	public List<Post> findPostsByType(com.blog_app.entity.PostType type) {
+		return postRepository.findByType(type);
 	}
 
 }

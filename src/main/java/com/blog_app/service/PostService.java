@@ -30,4 +30,6 @@ public interface PostService {
 	List<Post> findPostsByCategory(Long categoryId);
 	
 	List<Post> findPosts(String query);
+
+	List<Post> findPostsByType(com.blog_app.entity.PostType type);
 }

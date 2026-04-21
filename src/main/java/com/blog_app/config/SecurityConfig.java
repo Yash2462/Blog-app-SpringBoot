@@ -34,11 +34,10 @@ public class SecurityConfig {
 			"/swagger-ui.html",
 			"/v3/api-docs/**",
 			"/swagger-resources/**",
-           "/swagger-resources" ,
-           "/swagger-ui/**", "/api-docs/**",
-           "/login",
-           "/signup",
-           "/actuator/**"
+			"/swagger-ui/**",
+			"/login",
+			"/signup",
+			"/actuator/**"
 	};
 
 	@Autowired
@@ -49,7 +48,10 @@ public class SecurityConfig {
 
 	        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 	                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**","/css/**","/js/**","/image/**","/static/**", "/api/upload", "/uploads/**").permitAll()
-	                		//.requestMatchers(HttpMethod.DELETE, "/**").hasRole("ADMIN")
+	                		.requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/categories/**", "/api/comments/**").permitAll()
+	                		.requestMatchers(HttpMethod.POST, "/api/posts/**", "/api/categories/**").hasRole("ADMIN")
+	                		.requestMatchers(HttpMethod.PUT, "/api/posts/**", "/api/categories/**").hasRole("ADMIN")
+	                		.requestMatchers(HttpMethod.DELETE, "/api/posts/**", "/api/categories/**").hasRole("ADMIN")
 	                		.requestMatchers(SWAGGER_WHITELIST).permitAll()
 	                        .anyRequest().authenticated())
 					.exceptionHandling(exception -> exception

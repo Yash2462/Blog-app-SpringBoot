@@ -36,6 +36,12 @@ public class Category {
 	@Column(name = "category_name")
 	@NotBlank(message = "category must not be empty")
 	private String name;
+
+	@Column(name = "category_slug", unique = true)
+	private String slug;
+
+	@Column(name = "category_description")
+	private String description;
 	
 	/*
 	 * @OneToMany(mappedBy = "category",cascade = CascadeType.ALL,orphanRemoval =

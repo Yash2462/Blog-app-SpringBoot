@@ -57,23 +57,24 @@ public class PostController {
 																			 @PathVariable Long categoryId){
 		
 		User user = userService.findUserById(userId);
-		Post createPost = new Post();
 		ResponseMessageVo response = new ResponseMessageVo();
 		try {
-		Category category = categoryService.getCategorybyId(categoryId);
-		createPost.setTitle(post.getTitle());
-		createPost.setDescription(post.getDescription());
-		createPost.setData(post.getData());
-		createPost.setPostImage(post.getPostImage());
-		createPost.setUser(user);
-		createPost.setCategory(category);
-		
-		response.setMessage("post created successfully");
-		response.setStatus(201);
-		response.setData(createPost);
-		postService.savePost(createPost);
-		
-		return new ResponseEntity<>(response,HttpStatus.CREATED);
+			Category category = categoryService.getCategorybyId(categoryId);
+			
+			// Use the post object directly, only set user and category
+			post.setUser(user);
+			post.setCategory(category);
+			
+			// New fields are already in the post object from @RequestBody
+			
+			// Save post first to generate ID and created_at
+			postService.savePost(post);
+			
+			response.setMessage("post created successfully");
+			response.setStatus(201);
+			response.setData(post);
+			
+			return new ResponseEntity<>(response,HttpStatus.CREATED);
 		}catch (Exception e) {
 			response.setMessage("error in create post");
 			response.setStatus(500);
@@ -202,6 +203,23 @@ public class PostController {
 			return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	@GetMapping("/type/{type}")
+	public ResponseEntity<Object> findPostsByType(@PathVariable com.blog_app.entity.PostType type){
+		ResponseMessageVo message = new ResponseMessageVo();
+		try {
+			List<Post> posts = postService.findPostsByType(type);
+			message.setMessage("posts found successfully");
+			message.setStatus(200);
+			message.setData(posts);
+			return new ResponseEntity<>(message, HttpStatus.OK);
+		} catch (Exception e) {
+			message.setMessage("Error fetching posts for type");
+			message.setStatus(500);
+			message.setData(e.getMessage());
+			return new ResponseEntity<>(message, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 	
 	
 	@PutMapping("/{postId}")
@@ -241,6 +259,19 @@ public class PostController {
 		   
 			if (post.getPostImage() != null) {
 				updatePost.setPostImage(post.getPostImage());	  
+			}
+			
+			if (post.getType() != null) {
+				updatePost.setType(post.getType());
+			}
+			if (post.getDifficulty() != null) {
+				updatePost.setDifficulty(post.getDifficulty());
+			}
+			if (post.getSolutionCode() != null) {
+				updatePost.setSolutionCode(post.getSolutionCode());
+			}
+			if (post.getTechStack() != null) {
+				updatePost.setTechStack(post.getTechStack());
 			}
 		
 		

@@ -41,4 +41,8 @@ public interface PostRepository extends JpaRepository<Post,Long>{
 
 	List<Post> findByLikedBy_Id(Long userId);
 
+	List<Post> findByType(com.blog_app.entity.PostType type);
+
+	java.util.Optional<Post> findBySlug(String slug);
+
 }
